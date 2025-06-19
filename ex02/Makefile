@@ -17,7 +17,7 @@ MAKEFLAGS = -j$(nproc) --no-print-directory
 
 RM = rm -rf
 
-NAME = PMergeMe
+NAME = PmergeMe
 
 SRCS = main.cpp PmergeMe.cpp
 

@@ -1,48 +1,50 @@
 #include "PmergeMe.hpp"
 
-PMergeMe::PMergeMe(){}
+PmergeMe::PmergeMe() : counter(0){}
 
-PMergeMe::PMergeMe(const PMergeMe& other){(void)other;}
+PmergeMe::PmergeMe(const PmergeMe& other){(void)other;}
 
-PMergeMe& PMergeMe::operator=(const PMergeMe& other) {(void)other; return *this;}
+PmergeMe& PmergeMe::operator=(const PmergeMe& other) {(void)other; return *this;}
 
-PMergeMe::~PMergeMe() {}
+PmergeMe::~PmergeMe() {}
 
-const VecInt PMergeMe::sortVec(int ac, char *av[]) {
+const VecInt PmergeMe::sortVec(int ac, char *av[]) {
 	VecInt vecInput = checkInput<VecInt>(ac, av);
-	int	unpaired = -1;
-	if (vecInput.size() % 2 == 1)
-		unpaired = vecInput.back();
-	VecPair pairedVec = createPairs<VecPair, VecInt>(vecInput);
-	VecPairIt it = pairedVec.begin();
-	while (it != pairedVec.end()) {
-		std::cout << "(" << it->first << ", " << it->second << ")\n";
-		++it;
-	}
-	if (unpaired != -1)
-		std::cout << unpaired << "\n";
-	return vecInput;
-}
-
-const DeqInt PMergeMe::sortDeq(int ac, char *av[]) {
-	DeqInt deqInput = checkInput<DeqInt>(ac, av);
-
-	int unpaired = -1;
-	if (deqInput.size() % 2 == 1)
-		unpaired = deqInput.back();
+	std::cout << "\nBefore: ";
+	dump<VecInt, VecIntIt>(vecInput);
 	
-	DeqPair pairedDeq = createPairs<DeqPair, DeqInt>(deqInput);
-	DeqPairIt it = pairedDeq.begin();
-	while (it != pairedDeq.end()) {
-		std::cout << "(" << it->first << ", " << it->second << ")\n";
-		++it;
-	}
-	if (unpaired != -1)
-		std::cout << unpaired << "\n";
-	return deqInput;
+	std::clock_t start = std::clock();
+	VecInt sorted = mergeInsertionSort<VecInt, VecPair>(vecInput);
+	std::clock_t end = std::clock();
+	std::cout << "\nAfter: ";
+	dump<VecInt, VecIntIt>(sorted);
+	
+	std::cout << "\nTime to process the range of " 
+				<< vecInput.size() << " with std::vector : " 
+				<< static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000000.0 << " microsecs\n";
+	std::cout << "Number of comparisons: " << counter << "\n";
+	return sorted;
 }
 
-int toInt(const std::string& number) {
+const DeqInt PmergeMe::sortDeq(int ac, char *av[]) {
+	DeqInt deqInput = checkInput<DeqInt>(ac, av);
+	std::cout << "\nBefore: ";
+	dump<DeqInt, DeqIntIt>(deqInput);
+	
+	std::clock_t start = std::clock();
+	DeqInt sorted = mergeInsertionSort<DeqInt, DeqPair>(deqInput);
+	std::clock_t end = std::clock();
+	std::cout << "\nAfter: ";
+	dump<DeqInt, DeqIntIt>(sorted);
+
+	std::cout << "\nTime to process the range of " 
+				<< deqInput.size() << " with std::deque : " 
+				<< static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000000.0 << " microsecs\n";
+	std::cout << "\nNumber of comparisons: " << counter << "\n";
+	return sorted;
+}
+
+int PmergeMe::toInt(const std::string& number) {
 	int res = 0;
 	for (size_t i = 0; i < number.length(); ++i) {
 		res = res * 10 + (number[i] - '0');
@@ -51,3 +53,21 @@ int toInt(const std::string& number) {
 	}
 	return res;
 }
+
+VecInt PmergeMe::generateJacobsthal(int size) {
+	VecInt jacobsthal;
+	jacobsthal.push_back(0);
+	jacobsthal.push_back(1);
+	int next = 0;
+	while (next < size) {
+		next = jacobsthal[jacobsthal.size() - 1] + 2 * jacobsthal[jacobsthal.size() - 2];
+		jacobsthal.push_back(next);
+	}
+	VecInt result;
+	for (size_t i = 2; i < jacobsthal.size(); ++i) {
+		if (jacobsthal[i] < size)
+			result.push_back(jacobsthal[i]);
+	}
+	return result;
+}
+
