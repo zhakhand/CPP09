@@ -17,9 +17,9 @@ MAKEFLAGS = -j$(nproc) --no-print-directory
 
 RM = rm -rf
 
-NAME = easyfind
+NAME = PMergeMe
 
-SRCS = main.cpp
+SRCS = main.cpp PmergeMe.cpp
 
 OBJSDIR = objs
 
