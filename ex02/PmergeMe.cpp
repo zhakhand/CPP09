@@ -64,9 +64,17 @@ VecInt PmergeMe::generateJacobsthal(int size) {
 		jacobsthal.push_back(next);
 	}
 	VecInt result;
-	for (size_t i = 2; i < jacobsthal.size(); ++i) {
+	for (size_t i = 0; i < jacobsthal.size(); ++i) {
+		if (i == 1) continue;
 		if (jacobsthal[i] < size)
 			result.push_back(jacobsthal[i]);
+
+		/* Put Remaining Indexes */
+		// 0* 1* 3* 2 5* 4 11* 10 9 8 7 6 *21 20 ...
+		if (i != 2) {
+			for (int j = jacobsthal[i] - 1; j > jacobsthal[i - 1]; --j)
+				result.push_back(j);
+		}
 	}
 	return result;
 }
@@ -146,7 +154,7 @@ int PmergeMe::distToPair(const std::pair<int, int>& pair, const Container& bigs)
 		it++;
 	}
 	return (bigs.end() - bigs.begin());
-} 
+}
 
 template <typename Container, typename PairContainer>
 void PmergeMe::insertSmalls(Container& bigs, Container& smalls, int leftover, const PairContainer& pairs) {
@@ -159,12 +167,6 @@ void PmergeMe::insertSmalls(Container& bigs, Container& smalls, int leftover, co
 			int bigPair = distToPair<Container>(pairs[index], bigs);
 			binaryInsert(bigs, smalls[index], bigPair);
 			inserted[index] = true;
-		}
-	}
-	for (size_t i = 0; i < smalls.size(); ++i) {
-		if (!inserted[i]) {
-			int bigPair = distToPair<Container>(pairs[i], bigs);
-			binaryInsert(bigs, smalls[i], bigPair);
 		}
 	}
 	if (leftover != -1) binaryInsert(bigs, leftover, bigs.size());
@@ -199,7 +201,7 @@ void PmergeMe::dump(Container container) {
 	Iterator end = container.end();
 	int i = 0;
 	while (it != end) {
-		if (i >= 5) {
+		if (i >= 10) {
 			std::cout << "[...]\n";
 			break;
 		}
@@ -208,5 +210,6 @@ void PmergeMe::dump(Container container) {
 		++i;
 	}
 	std::cout << "\n";
+	std::cout << "Container Size: " << end - container.begin();
 }
 
